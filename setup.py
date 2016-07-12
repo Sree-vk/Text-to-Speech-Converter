@@ -5,16 +5,16 @@ except ImportError:
 	from distutils.core import setup
 
 config = {
-	'description': 'My Project',
-    	'author': 'My Name',
+	'description': 'Text to Speech converter',
+    	'author': 'Sree_Vk',
     	'url': 'URL to get it at.',
 	'download_url': 'Where to download it.',
-    	'author_email': 'My email.',
+    	'author_email': 'vksreelakshmi@yahoo.co.in',
     	'version': '0.1',
     	'install_requires': ['nose'],
-    	'packages': ['NAME'],
+    	'packages': [],
     	'scripts': [],
-    	'name': 'projectname'
+    	'name': 'tts-converter'
 }
 
 setup(**config)
