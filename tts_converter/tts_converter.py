@@ -5,6 +5,36 @@ import time #for delay
 import pygst    #for playing mp3 stream
 import gst      #" "
 #import os   #for finding file size
+import fnmatch
+
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfpage import PDFPage
+from cStringIO import StringIO
+
+def convert_pdf_to_txt(path):
+    rsrcmgr = PDFResourceManager()
+    retstr = StringIO()
+    codec = 'utf-8'
+    laparams = LAParams()
+    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    fp = file(path, 'rb')
+    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    password = ""
+    maxpages = 0
+    caching = True
+    pagenos=set()
+
+    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password,caching=caching, check_extractable=True):
+        interpreter.process_page(page)
+	
+    text = retstr.getvalue()
+
+    fp.close()
+    device.close()
+    retstr.close()
+    return text
 
 
 class Tts_converter :
@@ -15,7 +45,14 @@ class Tts_converter :
 		self.input_string.pop(0)
 		#Extract the file name from the arg list
 		self.input_file = input_string.pop(0)
-
+		if fnmatch.fnmatch(self.input_file, '*.pdf'):
+			self.text = convert_pdf_to_txt(self.input_file)
+			self.file_name='f1.txt'
+			file_desc = open(self.file_name,'w')
+			file_desc.write(self.text)
+			file_desc.close()
+			self.input_file = self.file_name
+			
 	def file_Read(self,file_desc) :
 		file_content = file_desc.read(100)
 		return file_content
@@ -40,7 +77,7 @@ class Tts_converter :
 #take command line args as the input string
 tts_Obj = Tts_converter(sys.argv)
 
-print 'Input File name is :' + tts_Obj.input_file
+#print 'Input File name is :' + tts_Obj.input_file
 
 file_desc = open(tts_Obj.input_file,'r')
 
@@ -61,7 +98,7 @@ while file_content != '' :
 	tts_Obj.play_Speech(music_stream_uri)
 	
 	#requires a delay, if the py process closes before the mp3 has finished it will be cut off.
-	time.sleep(7)
+	time.sleep(10)
 	file_content = tts_Obj.file_Read(file_desc)
 	
 
